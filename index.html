@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Quebra-Cabeça</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #f0f0f0;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    header {
+      font-family: 'Trebuchet MS', sans-serif;
+      font-size: 2em;
+      margin: 20px;
+      color: #fff;
+      text-shadow: 0 0 10px #00f, 0 0 20px #0ff;
+    }
+
+    header::before {
+      content: "🧩 ";
+    }
+
+    #gameArea {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 5px;
+      margin: 20px auto;
+      max-width: 90vw;
+      max-height: 90vw;
+    }
+
+    .piece {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      background-size: 300% 300%;
+      border: 1px solid #ccc;
+      touch-action: none;
+    }
+
+    #resetBtn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 1em;
+      border: none;
+      cursor: pointer;
+      background: #444;
+      color: white;
+      border-radius: 5px;
+      box-shadow: 0 0 10px #00f;
+      transition: box-shadow 0.3s ease;
+    }
+
+    #resetBtn:hover {
+      box-shadow: 0 0 20px #0ff;
+    }
+
+    /* Mensagem de vitória */
+    #victoryMessage {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0,0,0,0.8);
+      color: #fff;
+      padding: 20px 40px;
+      border-radius: 10px;
+      font-size: 1.5em;
+      display: none;
+      z-index: 1000;
+      text-shadow: 0 0 10px #0ff;
+    }
+
+    /* Confetes */
+    .confetti {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      background-color: red;
+      animation: fall 3s linear forwards;
+      z-index: 999;
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>Quebra-Cabeça Interativo</header>
+
+  <label for="imageSelect">Escolha a imagem:</label>
+  <select id="imageSelect">
+    <option value="img1.jpg">Imagem 1</option>
+    <option value="img2.jpg">Imagem 2</option>
+    <option value="img3.jpg">Imagem 3</option>
+  </select>
+
+  <div id="gameArea"></div>
+
+  <button id="resetBtn">Resetar</button>
+
+  <div id="victoryMessage">🎉 Parabéns, você completou o quebra-cabeça! 🎉</div>
+
+  <script>
+    const gameArea = document.getElementById('gameArea');
+    const resetBtn = document.getElementById('resetBtn');
+    const imageSelect = document.getElementById('imageSelect');
+    const victoryMessage = document.getElementById('victoryMessage');
+
+    let pieces = [];
+
+    function createPuzzle(image) {
+      gameArea.innerHTML = '';
+      pieces = [];
+      for (let i = 0; i < 9; i++) {
+        const piece = document.createElement('div');
+        piece.classList.add('piece');
+
+        const col = i % 3;
+        const row = Math.floor(i / 3);
+        piece.style.backgroundImage = `url(${image})`;
+        piece.style.backgroundSize = "300% 300%";
+        piece.style.backgroundPosition = `${-col * 100}% ${-row * 100}%`;
+
+        piece.dataset.index = i;
+
+        piece.addEventListener('touchstart', touchStart);
+        piece.addEventListener('touchend', touchEnd);
+
+        pieces.push(piece);
+        gameArea.appendChild(piece);
+      }
+      shufflePieces();
+      victoryMessage.style.display = 'none';
+    }
+
+    function shufflePieces() {
+      for (let i = pieces.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        gameArea.appendChild(pieces[j]);
+      }
+    }
+
+    let draggedPiece = null;
+
+    function touchStart(e) {
+      draggedPiece = this;
+      this.style.opacity = '0.5';
+    }
+
+    function touchEnd(e) {
+      this.style.opacity = '1';
+      const touch = e.changedTouches[0];
+      const target = document.elementFromPoint(touch.clientX, touch.clientY);
+
+      if (target && target.classList.contains('piece') && target !== draggedPiece) {
+        const draggedIndex = Array.from(gameArea.children).indexOf(draggedPiece);
+        const targetIndex = Array.from(gameArea.children).indexOf(target);
+
+        if (draggedIndex > targetIndex) {
+          gameArea.insertBefore(draggedPiece, target);
+        } else {
+          gameArea.insertBefore(draggedPiece, target.nextSibling);
+        }
+      }
+      draggedPiece = null;
+      checkVictory();
+    }
+
+    function checkVictory() {
+      const currentOrder = Array.from(gameArea.children).map(p => p.dataset.index);
+      const correctOrder = [...Array(9).keys()];
+
+      if (JSON.stringify(currentOrder) === JSON.stringify(correctOrder)) {
+        showVictory();
+      }
+    }
+
+    function showVictory() {
+      victoryMessage.style.display = 'block';
+      launchConfetti();
+    }
+
+    function launchConfetti() {
+      for (let i = 0; i < 100; i++) {
+        const confetti = document.createElement('div');
+        confetti.classList.add('confetti');
+        confetti.style.left = Math.random() * window.innerWidth + 'px';
+        confetti.style.top = '-10px';
+        confetti.style.backgroundColor = randomColor();
+        document.body.appendChild(confetti);
+
+        setTimeout(() => confetti.remove(), 3000);
+      }
+    }
+
+    function randomColor() {
+      const colors = ['#ff0', '#f0f', '#0ff', '#0f0', '#f00', '#00f'];
+      return colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    resetBtn.addEventListener('click', () => {
+      createPuzzle(imageSelect.value);
+    });
+
+    imageSelect.addEventListener('change', (e) => {
+      createPuzzle(e.target.value);
+    });
+
+    createPuzzle(imageSelect.value);
+  </script>
+</body>
+</html>
