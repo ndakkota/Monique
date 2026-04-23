@@ -15,7 +15,7 @@
 
     header {
       font-family: 'Trebuchet MS', sans-serif;
-      font-size: 2em;
+      font-size: 2.5em; /* maior para celular */
       margin: 20px;
       color: #fff;
       text-shadow: 0 0 10px #00f, 0 0 20px #0ff;
@@ -23,6 +23,11 @@
 
     header::before {
       content: "🧩 ";
+    }
+
+    label, select {
+      font-size: 1.2em; /* maior para visibilidade */
+      margin: 10px;
     }
 
     #gameArea {
@@ -45,8 +50,8 @@
 
     #resetBtn {
       margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 1em;
+      padding: 15px 25px;
+      font-size: 1.2em; /* maior */
       border: none;
       cursor: pointer;
       background: #444;
@@ -68,9 +73,9 @@
       transform: translate(-50%, -50%);
       background: rgba(0,0,0,0.8);
       color: #fff;
-      padding: 20px 40px;
-      border-radius: 10px;
-      font-size: 1.5em;
+      padding: 30px 50px;
+      border-radius: 15px;
+      font-size: 2em; /* bem grande */
       display: none;
       z-index: 1000;
       text-shadow: 0 0 10px #0ff;
@@ -79,8 +84,8 @@
     /* Confetes */
     .confetti {
       position: fixed;
-      width: 10px;
-      height: 10px;
+      width: 12px;
+      height: 12px;
       background-color: red;
       animation: fall 3s linear forwards;
       z-index: 999;
