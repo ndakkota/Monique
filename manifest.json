@@ -1,10 +1,10 @@
 {
   "name": "Quebra-Cabeça",
   "short_name": "Puzzle",
-  "start_url": "index.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#000000",
-  "theme_color": "#000000",
+  "theme_color": "#f39c12",
   "icons": [
     {
       "src": "imagens/icon-192.png",
